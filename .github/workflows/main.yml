@@ -1,19 +1,1 @@
-name: CS2饰品监控
-on:
-  schedule:
-    # 已做时区转换，精准对应北京时间每小时整点执行
-    - cron: '0 16-23,0-15 * * *'
-  workflow_dispatch:
 
-jobs:
-  trigger-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 触发Coze工作流
-        run: |
-          curl --location --request POST 'https://api.coze.cn/v1/workflow/run' \
-          --header 'Authorization: Bearer pat_pD12wKE8q4NWfSQBVGUhGzMnZQZHd2eZELkbdeDWwgy9OtguPxfnBlpeU7hXr9vG' \
-          --header 'Content-Type: application/json' \
-          --data-raw '{"workflow_id": "7609531946625417262", "parameters": {}}' \
-          --max-time 30 \
-          -v
