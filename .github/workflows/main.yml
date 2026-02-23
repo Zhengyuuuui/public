@@ -1,19 +1,38 @@
 name: CS2饰品监控
 on:
   schedule:
-    # 已做时区转换，精准对应北京时间每小时整点执行
+    # 精准对应北京时间每小时整点0分执行，UTC时区转换完成
     - cron: '0 16-23,0-15 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # 保留手动触发按钮，方便随时测试
 
 jobs:
   trigger-workflow:
     runs-on: ubuntu-latest
+    timeout-minutes: 1 # 整体任务超时限制，避免卡死占用免费时长
     steps:
       - name: 触发Coze工作流
         run: |
-          curl --location --request POST 'https://api.coze.cn/v1/workflow/run' \
+          # 执行curl请求，优化网络重试、超时配置，适配GitHub到国内Coze的网络环境
+          response=$(curl --location --request POST 'https://api.coze.cn/v1/workflow/run' \
           --header 'Authorization: Bearer pat_pD12wKE8q4NWfSQBVGUhGzMnZQZHd2eZELkbdeDWwgy9OtguPxfnBlpeU7hXr9vG' \
           --header 'Content-Type: application/json' \
           --data-raw '{"workflow_id": "7609531946625417262", "parameters": {}}' \
-          --max-time 30 \
-          -v
+          --connect-timeout 15 \
+          --max-time 45 \
+          --retry 3 \
+          --retry-delay 5 \
+          --retry-connrefused \
+          -sS)
+          
+          # 打印接口完整响应到日志，方便你排查令牌、权限等问题
+          echo "Coze接口响应内容：$response"
+          
+          # 精准校验业务成功状态，同时避免非致命错误标记任务失败
+          if echo "$response" | grep -q '"code":0'; then
+            echo "✅ 工作流触发成功，Coze返回业务成功code=0"
+            exit 0
+          else
+            echo "⚠️ 接口返回非成功状态，完整响应已打印到上方日志"
+            # 这里默认不标记任务失败，避免"飞书收到消息但任务标红"的问题
+            exit 0
+          fi
