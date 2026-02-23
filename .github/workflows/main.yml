@@ -1,0 +1,19 @@
+name: CS2饰品每小时监控
+on:
+  schedule:
+    - cron: '0 * * * *' # 每小时整点0分执行（北京时间）
+  workflow_dispatch: # 支持手动触发测试
+
+jobs:
+  trigger-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 触发Coze工作流
+        run: |
+          curl --location --request POST 'https://api.coze.cn/v1/workflow/run' \
+          --header 'Authorization: Bearer pat_pD12wKE8q4NWfSQBVGUhGzMnZQZHd2eZELkbdeDWwgy9OtguPxfnBlpeU7hXr9vG' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "workflow_id": "7609531946625417262",
+              "parameters": {}
+          }'
