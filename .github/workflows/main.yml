@@ -1,9 +1,9 @@
-name: CS2饰品每小时监控
+name: CS2饰品监控
 on:
   schedule:
     # 已做时区转换，精准对应北京时间每小时整点执行
     - cron: '0 16-23,0-15 * * *'
-  workflow_dispatch: # 保留手动触发按钮，方便测试
+  workflow_dispatch:
 
 jobs:
   trigger-workflow:
@@ -11,8 +11,9 @@ jobs:
     steps:
       - name: 触发Coze工作流
         run: |
-          curl --location --request POST 'https://api.coze.cn/api/v1/workflow/run_webhook?token=cztei_l2x9RCjgpP2HyGg44PDRbfs7RXo0agYDBOv0v6LFCMP41tWszHCyMCn9Ohp3vbkoT' \
+          curl --location --request POST 'https://api.coze.cn/v1/workflow/run' \
+          --header 'Authorization: Bearer pat_pD12wKE8q4NWfSQBVGUhGzMnZQZHd2eZELkbdeDWwgy9OtguPxfnBlpeU7hXr9vG' \
           --header 'Content-Type: application/json' \
-          --data-raw '{}' \
+          --data-raw '{"workflow_id": "7609531946625417262", "parameters": {}}' \
           --max-time 30 \
           -v
